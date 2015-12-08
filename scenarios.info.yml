@@ -1,0 +1,7 @@
+name: Scenarios
+type: module
+description: API for packaging reusable Drupal scenarios.
+core: 8.x
+package: Scenarios
+dependencies:
+ - migrate_tools

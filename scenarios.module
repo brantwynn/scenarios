@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Contains scenarios.module.
+ */
+
+/**
+ * Function to return scenario migrations.
+ */
+function scenarios_scenario_migrations($scenario) {
+  // Set up migrations array.
+  $migrations = [];
+  // Invoke hook_scenario_import.
+  $migrations = Drupal::moduleHandler()->invokeAll('scenario_import');
+  // Invoke hook_scenario_import.
+  Drupal::moduleHandler()->alter('scenario_import', $migrations);
+  $migrations = $migrations[$scenario];
+  return $migrations;
+}
+
