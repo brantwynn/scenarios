@@ -5,7 +5,6 @@
  * Command-line tools to aid performing scenario operations.
  */
 
-use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate_tools\DrushLogMigrateMessage;
 
@@ -93,8 +92,14 @@ function drush_scenarios_enable_scenario($scenario) {
   $log = new DrushLogMigrateMessage();
 
   // Run the migrations in the provided order.
+  /** @var \Drupal\migrate\Plugin\MigrationPluginManager $migration_manager */
+  $migration_manager = \Drupal::service('plugin.manager.migration');
+  $migration_manager->clearCachedDefinitions();
+
   foreach ($migrations as $migration) {
-    $migration = entity_load('migration', $migration);
+    /** @var \Drupal\migrate\Plugin\Migration $migration */
+    $migration = $migration_manager->createInstance($migration);
+
     $executable = new MigrateExecutable($migration, $log);
     if (drush_op(array($executable, 'import'))) {
       drush_log(dt('Imported "@name" migration.', array('@name' => $migration->label())), 'ok');
@@ -103,7 +108,7 @@ function drush_scenarios_enable_scenario($scenario) {
   }
 
   // Rebuild cache after enabling scenario.
-  drush_invoke_process($alias, 'cache-rebuild'); 
+  drush_invoke_process($alias, 'cache-rebuild');
 }
 
 /**
@@ -131,10 +136,17 @@ function drush_scenarios_uninstall_scenario($scenario) {
   // Reverse the order of the migrations.
   $migrations = array_reverse($migrations);
 
+  /** @var \Drupal\migrate\Plugin\MigrationPluginManager $migration_manager */
+  $migration_manager = \Drupal::service('plugin.manager.migration');
+  $migration_manager->clearCachedDefinitions();
+
   // Rollback the migrations in the modified order.
   foreach ($migrations as $migration) {
     $log = new DrushLogMigrateMessage();
-    $migration = entity_load('migration', $migration);
+
+    /** @var \Drupal\migrate\Plugin\Migration $migration */
+    $migration = $migration_manager->createInstance($migration);
+
     $executable = new MigrateExecutable($migration, $log);
     if (drush_op(array($executable, 'rollback'))) {
       drush_log(dt('Rolled back "@name" migration.', array('@name' => $migration->label())), 'ok');
