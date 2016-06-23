@@ -68,7 +68,30 @@ function drush_scenarios_enable_scenario($scenario) {
 
   // Check if scenario is already enabled and install it.
   if (!Drupal::moduleHandler()->moduleExists($scenario)) {
-    if (Drupal::service('module_installer')->install(array($scenario))) {
+    // Modules can't declare dependencies on themes. This leads to dependency
+    // problems where config shipped with a given scenario module relies on
+    // having a particular theme enabled. Since config is installed before any
+    // installation hooks are called, there is no way for a scenario module to
+    // work around this limitation.
+    // Add a limited form of theme dependency support to scenario modules by
+    // allowing them to declare a "scenarios_theme" in their .info.yml file
+    // which gets enabled before the actual scenario module itself.
+
+    // Locate and parse the scenario's .info.yml file. This must be done
+    // manually as system_get_info() requires the module to already be enabled.
+    $filename = drupal_get_path('module', $scenario) . "/$scenario.info.yml";
+    $info = \Drupal::service('info_parser')->parse($filename);
+
+    // If the scenario specifies a theme, enable it before installing the
+    // scenario itself.
+    if (!empty($info['scenarios_theme']) && !\Drupal::service('theme_handler')->themeExists($info['scenarios_theme'])) {
+      if (\Drupal::service('theme_handler')->install(array($info['scenarios_theme']))) {
+        drush_log(dt('Installed @scenario scenario theme @theme.', array('@scenario' => $scenario, '@theme' => $info['scenarios_theme'])), 'ok');
+      }
+    }
+
+    // Install the scenario module.
+    if (\Drupal::service('module_installer')->install(array($scenario))) {
       drush_log(dt('Installed @name scenario module.', array('@name' => $scenario)), 'ok');
     }
   }
