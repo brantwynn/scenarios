@@ -19,3 +19,15 @@ function scenarios_scenario_migrations($scenario) {
   return $migrations;
 }
 
+/**
+ * Implements hook_theme.
+ * @return array
+ */
+function scenarios_theme() {
+  return [
+    'scenarios_page' => [
+      'variables' => ['scenarios' => NULL],
+    ],
+  ];
+}
+
