@@ -1,3 +1,13 @@
+<h3>Scenarios</h3>
+<div class="scenarios">
 {% for scenario in scenarios %}
-    <p>{{ scenario.name }} - {{ scenario.enabled }}</p>
+    <div class="scenario">
+        <div class="scenario_name">{{ scenario.name }}</div>
+        <div class="scenario_screenshot"><img src="{{ scenario.screenshot }}" /></div>
+        <div class="scenario_link">{{ scenario.primary_link }}</div>
+        {% if scenario.secondary_link %}
+            <div class="scenario_link">{{ scenario.secondary_link }}</div>
+        {% endif %}
+    </div>
 {% endfor %}
+</div>

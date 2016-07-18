@@ -1,8 +1,11 @@
 
-scenarios.scenarios_controller_hello:
-  path: '/scenarios'
+scenarios.scenarios_controller_output:
+  path: '/scenarios/{action}/{scenario}'
   defaults:
-    _controller: '\Drupal\scenarios\Controller\ScenariosController::page'
+    _controller: '\Drupal\scenarios\Controller\ScenariosPage::output'
     _title: 'Scenarios'
+    action: none
+    scenario: none
   requirements:
     _permission: 'access content'
+
