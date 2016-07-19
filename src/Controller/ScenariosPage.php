@@ -121,6 +121,10 @@ class ScenariosPage extends ControllerBase {
 
   /**
    * Output for controller.
+   *
+   * @param $action
+   * @param $scenario
+   * @return array
    */
   public function output($action, $scenario) {
     $message = null;
