@@ -101,6 +101,7 @@ class ScenariosPage extends ControllerBase {
         $module_installed = array_key_exists($name, $installed);
         $scenarios[] = [
           'name' => $info['name'],
+          'description' => $info['description'],
           'screenshot' => $this->scenariosHandler->getScreenshot($name),
           'module' => $info['scenarios_module'],
           'primary_link' => $this->makeActionLink($module_installed, $name, 'primary'),

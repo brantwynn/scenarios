@@ -1,1 +1,34 @@
-/* Scenarios page styles */
+.path-scenarios .inner-wrap nav, .path-scenarios footer, .bottom-bar {
+	display: none;
+}
+
+.path-scenarios .button a {
+	color: #fff;
+}
+
+.path-scenarios .scenario_screenshot {
+	text-align: center;
+}
+
+.path-scenarios .scenario_screenshot img {
+	text-align: center;
+	max-width:350px;
+}
+
+.path-scenarios .scenario {
+	border: 3px solid #ccc;
+	border-radius: 10px;
+	max-width: 400px;
+	padding: 20px;
+}
+
+body.path-scenarios {
+	background: #fff;
+}
+
+.path-scenarios .scenarios-page-title{
+	border-bottom: 2px solid #ccc;
+	margin-bottom: 40px;
+	margin-top: 40px;
+	width: 100%;
+}
