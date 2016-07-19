@@ -1,0 +1,5 @@
+scenarios.module:
+  version: VERSION
+  css:
+    theme:
+      css/scenarios.module.css: {}

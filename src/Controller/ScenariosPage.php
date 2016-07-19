@@ -110,6 +110,11 @@ class ScenariosPage extends ControllerBase {
     }
     return [
       '#theme' => 'scenarios_page',
+      '#attached' => [
+        'library' => [
+          'scenarios/scenarios.module'
+        ]
+      ],
       '#scenarios' => $scenarios
     ];
   }
