@@ -7,10 +7,10 @@
 
 /**
  * Function to return scenario migrations.
+ * @param $scenario
+ * @return array
  */
 function scenarios_scenario_migrations($scenario) {
-  // Set up migrations array.
-  $migrations = [];
   // Invoke hook_scenario_import.
   $migrations = Drupal::moduleHandler()->invokeAll('scenario_import');
   // Invoke hook_scenario_import.
