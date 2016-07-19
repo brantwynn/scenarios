@@ -166,7 +166,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
   /**
    * @param string $scenario
    */
-  function scenarioEnable($scenario) {
+  public function scenarioEnable($scenario) {
     if (!$scenario) {
       $this->setError(t('You must specify a scenario machine name, e.g. dfs_tec.'));
       return;
@@ -207,7 +207,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
 
     // If we have pending batches, process them now.
     if (batch_get()) {
-      if ($alias != null && function_exists('drush_backend_batch_process')) {
+      if ($alias !== null && function_exists('drush_backend_batch_process')) {
         drush_backend_batch_process();
       }
       else {
@@ -232,7 +232,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     }
 
     // Rebuild cache after enabling scenario.
-    if ($alias != null && function_exists('drush_invoke_process')) {
+    if ($alias !== null && function_exists('drush_invoke_process')) {
       drush_invoke_process($alias, 'cache-rebuild');
     }
     else {

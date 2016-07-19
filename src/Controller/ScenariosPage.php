@@ -73,7 +73,7 @@ class ScenariosPage extends ControllerBase {
       default:
         $action = ($link_type == 'primary' ? 'enable' : null);
     }
-    if ($action != null) {
+    if ($action !== null) {
       return Link::createFromRoute(t(ucwords($action)), 'scenarios.scenarios_controller_output', ['action' => $action, 'scenario' => $scenario]);
     }
     return null;
