@@ -254,7 +254,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
 
     // Check if scenario is already enabled and uninstall it.
     if ($this->moduleHandler->moduleExists($scenario)) {
-      $this->setError(t('Uninstalled @name scenario module.', ['@name' => $scenario]));
+      $this->setMessage(t('Uninstalled @name scenario module.', ['@name' => $scenario]));
       return;
     }
 
