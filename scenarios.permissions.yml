@@ -1,0 +1,4 @@
+administer scenarios:
+  title: 'Administer Scenarios'
+  description: 'Enable, Reset and Uninstall Scenarios via the UI.'
+  restrict access: TRUE

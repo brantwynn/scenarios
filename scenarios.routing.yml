@@ -7,5 +7,4 @@ scenarios.scenarios_controller_output:
     action: none
     scenario: none
   requirements:
-    _permission: 'access content'
-
+    _permission: 'administer scenarios'
