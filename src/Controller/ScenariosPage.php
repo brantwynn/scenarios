@@ -89,6 +89,7 @@ class ScenariosPage extends ControllerBase {
     if ($message != null) {
       drupal_set_message($message);
     }
+    $default_config = \Drupal::config('scenarios.settings');
     $scenarios = [];
     $installed = $this->moduleHandler->getModuleList();
     $modules = system_rebuild_module_data();
@@ -105,7 +106,8 @@ class ScenariosPage extends ControllerBase {
           'screenshot' => $this->scenariosHandler->getScreenshot($name),
           'module' => $info['scenarios_module'],
           'primary_link' => $this->makeActionLink($module_installed, $name, 'primary'),
-          'secondary_link' => $this->makeActionLink($module_installed, $name, 'secondary')
+          'secondary_link' => $this->makeActionLink($module_installed, $name, 'secondary'),
+          'drush' => (isset($info['scenarios_drush']) ? $info['scenarios_drush'] : 'both')
         ];
       }
     }
@@ -116,6 +118,7 @@ class ScenariosPage extends ControllerBase {
           'scenarios/scenarios.module'
         ]
       ],
+      '#page_title' => $default_config->get('scenarios.page_title'),
       '#scenarios' => $scenarios
     ];
   }

@@ -1,16 +1,24 @@
-<div class="scenarios-page-title"><h2>Scenarios</h2></div>
+<div class="scenarios-page-title"><h2>{{ page_title }}</h2></div>
 <div class="scenarios">
 {% for scenario in scenarios %}
     <div class="scenario">
         <div class="scenario_screenshot"><img src="{{ scenario.screenshot }}" /></div>
         <div class="scenario_name"><h2>{{ scenario.name }}</h2></div>
         <div class="scenario_description"><p>{{ scenario.description }}</p></div>
+        {%  if scenario.drush == 'both' %}
         <div class="scenario_link_bar">
             <div class="scenario_link button">{{ scenario.primary_link }}</div>
             {% if scenario.secondary_link %}
             <div class="scenario_link button alert">{{ scenario.secondary_link }}</div>
             {% endif %}
         </div>
+        {%  elseif scenario.drush == 'only' %}
+            <div class=scenario_drush">
+                This scenario may only be enabled via drush.
+                <br />
+                <code>$ drush {{ scenario.command }} {{ scenario.module }}</code>
+            </div>
+        {% endif %}
     </div>
 {% endfor %}
 </div>
