@@ -26,7 +26,10 @@ function scenarios_scenario_migrations($scenario) {
 function scenarios_theme() {
   return [
     'scenarios_page' => [
-      'variables' => ['scenarios' => NULL],
+      'variables' => [
+        'scenarios' => NULL,
+        'page_title' => 'Scenarios'
+      ],
     ],
   ];
 }

@@ -107,7 +107,8 @@ class ScenariosPage extends ControllerBase {
           'module' => $info['scenarios_module'],
           'primary_link' => $this->makeActionLink($module_installed, $name, 'primary'),
           'secondary_link' => $this->makeActionLink($module_installed, $name, 'secondary'),
-          'drush' => (isset($info['scenarios_drush']) ? $info['scenarios_drush'] : 'both')
+          'drush' => (isset($info['scenarios_drush']) ? $info['scenarios_drush'] : 'both'),
+          'installed' => ($module_installed ? 'true' : 'false')
         ];
       }
     }

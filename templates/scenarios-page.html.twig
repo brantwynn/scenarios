@@ -14,9 +14,14 @@
         </div>
         {%  elseif scenario.drush == 'only' %}
             <div class=scenario_drush">
-                This scenario may only be enabled via drush.
-                <br />
-                <code>$ drush {{ scenario.command }} {{ scenario.module }}</code>
+                {%  if scenario.installed == true %}
+                    <em>This scenario may only be turned on via drush.</em><br />
+                    <strong>Enable:</strong> <code>$ drush es {{ scenario.module }}</code>
+                {% else %}
+                    <em>This scenario may only be reset or uninstalled via drush commands.</em><br />
+                    <strong>Reset:</strong> <code>$ drush rs {{ scenario.module }}</code><br />
+                    <strong>Uninstall:</strong> <code>$ drush us {{ scenario.module }}</code>
+                {% endif %}
             </div>
         {% endif %}
     </div>
