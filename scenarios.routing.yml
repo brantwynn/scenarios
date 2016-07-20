@@ -1,4 +1,3 @@
-
 scenarios.scenarios_controller_output:
   path: '/scenarios/{action}/{scenario}'
   defaults:
