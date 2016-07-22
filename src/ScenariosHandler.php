@@ -219,7 +219,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
     $migrations = scenarios_scenario_migrations($scenario);
 
     // Run the migrations in the provided order.
-    $migration_manager = $this->migrationPluginManager;
+    /*$migration_manager = $this->migrationPluginManager;*/
+    $migration_manager = \Drupal::service('plugin.manager.migration');
     $migration_manager->clearCachedDefinitions();
 
     foreach ($migrations as $migration) {
@@ -264,7 +265,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
     // Reverse the order of the migrations.
     $migrations = array_reverse($migrations);
 
-    $migration_manager = $this->migrationPluginManager;
+    /*$migration_manager = $this->migrationPluginManager;*/
+    $migration_manager = \Drupal::service('plugin.manager.migration');
     $migration_manager->clearCachedDefinitions();
 
     // Rollback the migrations in the modified order.
