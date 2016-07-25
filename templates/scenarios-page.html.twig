@@ -1,29 +1,31 @@
-<div class="scenarios-page-title"><h2>{{ page_title }}</h2></div>
-<div class="scenarios">
-{% for scenario in scenarios %}
-    <div class="scenario">
-        <div class="scenario_screenshot"><img src="{{ scenario.screenshot }}" /></div>
-        <div class="scenario_name"><h2>{{ scenario.name }}</h2></div>
-        <div class="scenario_description"><p>{{ scenario.description }}</p></div>
-        {%  if scenario.drush == 'both' %}
-        <div class="scenario_link_bar">
-            <div class="scenario_link button">{{ scenario.primary_link }}</div>
-            {% if scenario.secondary_link %}
-            <div class="scenario_link button alert">{{ scenario.secondary_link }}</div>
-            {% endif %}
-        </div>
-        {%  elseif scenario.drush == 'only' %}
-            <div class=scenario_drush">
-                {%  if scenario.installed == true %}
-                    <em>This scenario may only be turned on via drush.</em><br />
-                    <strong>Enable:</strong> <code>$ drush es {{ scenario.module }}</code>
-                {% else %}
-                    <em>This scenario may only be reset or uninstalled via drush commands.</em><br />
-                    <strong>Reset:</strong> <code>$ drush rs {{ scenario.module }}</code><br />
-                    <strong>Uninstall:</strong> <code>$ drush us {{ scenario.module }}</code>
+<div class="scenarios-wrapper">
+    <div class="scenarios-page-title"><h2>{{ page_title }}</h2></div>
+    <div class="scenarios">
+    {% for scenario in scenarios %}
+        <div class="scenario">
+            <div class="scenario_screenshot"><img src="{{ scenario.screenshot }}" /></div>
+            <div class="scenario_name"><h2>{{ scenario.name }}</h2></div>
+            <div class="scenario_description"><p>{{ scenario.description }}</p></div>
+            {%  if scenario.drush == 'both' %}
+            <div class="scenario_link_bar">
+                <div class="scenario_link button">{{ scenario.primary_link }}</div>
+                {% if scenario.secondary_link %}
+                <div class="scenario_link button alert">{{ scenario.secondary_link }}</div>
                 {% endif %}
             </div>
-        {% endif %}
+            {%  elseif scenario.drush == 'only' %}
+                <div class=scenario_drush">
+                    {%  if scenario.installed == true %}
+                        <em>This scenario may only be turned on via drush.</em><br />
+                        <strong>Enable:</strong> <code>$ drush es {{ scenario.module }}</code>
+                    {% else %}
+                        <em>This scenario may only be reset or uninstalled via drush commands.</em><br />
+                        <strong>Reset:</strong> <code>$ drush rs {{ scenario.module }}</code><br />
+                        <strong>Uninstall:</strong> <code>$ drush us {{ scenario.module }}</code>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
     </div>
-{% endfor %}
 </div>
