@@ -1,3 +1,8 @@
+.path-scenarios body {
+ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+ font-weight: normal;
+}
+
 .path-scenarios .inner-wrap nav, .path-scenarios footer, .bottom-bar {
 	display: none;
 }
@@ -16,10 +21,13 @@
 }
 
 .path-scenarios .scenario {
+	display:inline-block;
 	border: 3px solid #ccc;
 	border-radius: 10px;
 	max-width: 400px;
 	padding: 20px;
+	margin:10px;
+	vertical-align: top;
 }
 
 body.path-scenarios {
@@ -31,4 +39,23 @@ body.path-scenarios {
 	margin-bottom: 40px;
 	margin-top: 40px;
 	width: 100%;
+}
+
+.path-scenarios .scenario_link.button {
+	background: #2199e8;
+    color: #ffffff;
+    transition: background-color 0.25s ease-out, color 0.25s ease-out;
+}
+
+.path-scenarios .scenario_link.button:hover {
+	background: #0c4d78;
+}
+
+.path-scenarios .scenario_link.button.alert {
+	background: #ec5840;
+    color: #fff;
+}
+
+.path-scenarios .scenario_link.button.alert:hover {
+	background: #da3116;
 }
