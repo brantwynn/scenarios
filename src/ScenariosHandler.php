@@ -168,6 +168,72 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
+   * @param $command
+   * @param $migrations
+   * @param $alias
+   * @return bool
+   */
+  public function processMigrations($command, $migrations, $alias) {
+    // Load the Migration Manager.
+    $migration_manager = \Drupal::service('plugin.manager.migration');
+    $migration_manager->clearCachedDefinitions();
+
+    // Return the correct log for the Migrate Executable.
+    $log = $this->getLog($alias);
+
+    // Set default value for return.
+    $result = false;
+
+    // If we have pending batches, process them now.
+    $this->processBatch($alias);
+
+    // Run the migrations in the provided order.
+    foreach ($migrations as $migration) {
+      $migration = $migration_manager->createInstance($migration);
+      $executable = new MigrateExecutable($migration, $log);
+      $name = $migration->label();
+      switch ($command) {
+        case "import":
+          if ($execute = $executable->import()) {
+            $this->moduleHandler->invokeAll('scenarios_migration_finished', [$migration]);
+          }
+          break;
+        case "rollback":
+          $execute = $executable->rollback();
+          break;
+        default:
+          $execute = false;
+      }
+
+      // Return migration result.
+      $replace = ['@name' => $name, '@command' => $command];
+      if ($execute) {
+        $this->setMessage(t('Executed @command for "@name" migration.', $replace));
+        $result = true;
+      }
+      else {
+        $this->setError(t('Migration "@name" failed to execute @command', $replace));
+        $result = false;
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * @param $alias
+   */
+  function processBatch($alias) {
+    if (batch_get()) {
+      if ($alias !== null && function_exists('drush_backend_batch_process')) {
+        drush_backend_batch_process();
+      }
+      else {
+        batch_process();
+      }
+    }
+  }
+
+  /**
    * @param string $scenario
    */
   public function scenarioEnable($scenario) {
@@ -178,9 +244,6 @@ class ScenariosHandler implements ContainerInjectionInterface {
 
     // Get the Drush alias if necessary or return null.
     $alias = $this->getAlias();
-
-    // Get the correct log for migrate messages.
-    $log = $this->getLog($alias);
 
     // Check if scenario is already enabled then install it.
     if (!$this->moduleHandler->moduleExists($scenario)) {
@@ -209,32 +272,15 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
-    // If we have pending batches, process them now.
-    if (batch_get()) {
-      if ($alias !== null && function_exists('drush_backend_batch_process')) {
-        drush_backend_batch_process();
-      }
-      else {
-        batch_process();
-      }
-    }
-
-    // Retrieve the migrations for the given scenario.
-    $migrations = scenarios_scenario_migrations($scenario);
-
     // Load the Migration Manager.
     $migration_manager = \Drupal::service('plugin.manager.migration');
     $migration_manager->clearCachedDefinitions();
 
-    // Run the migrations in the provided order.
-    foreach ($migrations as $migration) {
-      $migration = $migration_manager->createInstance($migration);
-      $executable = new MigrateExecutable($migration, $log);
-      if ($executable->import()) {
-        $this->setMessage(t('Imported "@name" migration.', ['@name' => $migration->label()]));
-      }
-      $this->moduleHandler->invokeAll('scenarios_migration_finished', [$migration]);
-    }
+    // Retrieve the migrations for the given scenario.
+    $migrations = scenarios_scenario_migrations($scenario);
+
+    // Process the migrations.
+    $this->processMigrations('import', $migrations, $alias);
 
     // Rebuild cache after enabling scenario.
     if ($alias !== null && function_exists('drush_invoke_process')) {
@@ -254,14 +300,13 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
+    // Check if scenario is already enabled then install it.
+    if (!$this->moduleHandler->moduleExists($scenario)) {
+      $this->setError(t('The @name scenario module is not enabled.', ['@name' => $scenario]));
+    }
+
     // Get the Drush alias if necessary or return null.
     $alias = $this->getAlias();
-
-    // Check if scenario is already enabled and uninstall it.
-    if ($this->moduleHandler->moduleExists($scenario)) {
-      $this->setMessage(t('Uninstalled @name scenario module.', ['@name' => $scenario]));
-      return;
-    }
 
     // Retrieve the migrations for the given scenario.
     $migrations = scenarios_scenario_migrations($scenario);
@@ -269,21 +314,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
     // Reverse the order of the migrations.
     $migrations = array_reverse($migrations);
 
-    // Load the Migration Manager.
-    $migration_manager = \Drupal::service('plugin.manager.migration');
-    $migration_manager->clearCachedDefinitions();
-
-    // Rollback the migrations in the modified order.
-    foreach ($migrations as $migration) {
-      $log = $this->getLog($alias);
-
-      $migration = $migration_manager->createInstance($migration);
-
-      $executable = new MigrateExecutable($migration, $log);
-      if ($executable->rollback()) {
-        $this->setMessage(t('Uninstalled @name scenario module.', ['@name' => $scenario]));
-      }
-    }
+    // Process the migrations.
+    $this->processMigrations('rollback', $migrations, $alias);
 
     // Uninstall the scenario.
     if ($this->moduleInstaller->uninstall([$scenario])) {
@@ -299,7 +331,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     // Uninstall the scenario.
     $this->scenarioUninstall($scenario);
     // Enable the scenario.
-    $this->scenarioUninstall($scenario);
+    $this->scenarioEnable($scenario);
   }
 
 }
