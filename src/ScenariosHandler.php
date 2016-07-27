@@ -318,6 +318,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     // Check if scenario is enabled before uninstalling.
     if (!$this->moduleHandler->moduleExists($scenario)) {
       $this->setError(t('The @name scenario module is not enabled.', ['@name' => $scenario]));
+      return;
     }
 
     // Retrieve the migrations for the given scenario.

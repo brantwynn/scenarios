@@ -45,7 +45,7 @@ function scenarios_drush_command() {
       'scenario' => 'The name of the module that defines the scenario.',
     ),
     'examples' => array(
-      'rs dfs_tec' => 'Reset a scenario rolling back content and re-importing.',
+      'res dfs_tec' => 'Reset a scenario rolling back content and re-importing.',
     ),
     'drupal dependencies' => array('migrate_tools'),
     'aliases' => array('res'),
@@ -67,7 +67,6 @@ function drush_scenarios_enable_scenario($scenario) {
 function drush_scenarios_uninstall_scenario($scenario) {
   \Drupal::service(scenarios_handler)->scenarioUninstall($scenario);
 }
-
 
 /**
  * @param string $scenario
