@@ -35,16 +35,16 @@ class ScenariosHandler implements ContainerInjectionInterface {
   protected $moduleInstaller;
 
   /**
-   * Drupal\Core\Extension\ThemeHandler definition.
+   * Drupal\Core\Extension\InfoParser definition.
    *
-   * @var \Drupal\Core\Extension\ThemeHandler
+   * @var \Drupal\Core\Extension\InfoParser
    */
   protected $infoParser;
 
   /**
-   * Drupal\Core\Extension\InfoParser definition.
+   * Drupal\Core\Extension\ThemeHandler definition.
    *
-   * @var \Drupal\Core\Extension\InfoParser
+   * @var \Drupal\Core\Extension\ThemeHandler
    */
   protected $themeHandler;
 
@@ -145,6 +145,10 @@ class ScenariosHandler implements ContainerInjectionInterface {
     }
   }
 
+  /**
+   * @param $scenario
+   * @return string
+   */
   public function getScenarioInfo($scenario) {
     $filename = drupal_get_filename('module', $scenario);
     return $this->infoParser->parse($filename);
@@ -219,7 +223,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     $migrations = scenarios_scenario_migrations($scenario);
 
     // Run the migrations in the provided order.
-    /*$migration_manager = $this->migrationPluginManager;*/
+    // @todo: use $this->migrationPluginManager
     $migration_manager = \Drupal::service('plugin.manager.migration');
     $migration_manager->clearCachedDefinitions();
 
@@ -265,7 +269,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     // Reverse the order of the migrations.
     $migrations = array_reverse($migrations);
 
-    /*$migration_manager = $this->migrationPluginManager;*/
+    // @todo: use $this->migrationPluginManager
     $migration_manager = \Drupal::service('plugin.manager.migration');
     $migration_manager->clearCachedDefinitions();
 
