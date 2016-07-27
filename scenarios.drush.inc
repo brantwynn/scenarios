@@ -48,7 +48,7 @@ function scenarios_drush_command() {
       'rs dfs_tec' => 'Reset a scenario rolling back content and re-importing.',
     ),
     'drupal dependencies' => array('migrate_tools'),
-    'aliases' => array('rs'),
+    'aliases' => array('res'),
   );
 
   return $items;
