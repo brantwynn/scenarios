@@ -96,8 +96,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     if (PHP_SAPI === 'cli' && function_exists('drush_log')) {
       $type = ($type == 'status' ? 'ok' : $type);
       drush_log($message, $type);
-    }
-    else {
+    } else {
       drupal_set_message($message, $type, $repeat);
     }
   }
@@ -110,8 +109,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
   public function setError($message) {
     if (PHP_SAPI === 'cli' && function_exists('drush_set_error')) {
       drush_set_error('ERROR', $message);
-    }
-    else {
+    } else {
       drupal_set_message($message, 'error');
     }
   }
@@ -139,8 +137,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
   public function getLog($alias) {
     if ($alias != null && function_exists('drush_log')) {
       return new DrushLogMigrateMessage();
-    }
-    else {
+    } else {
       return new MigrateMessage();
     }
   }
@@ -168,9 +165,9 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * @param $command
+   * @param string $command
    * @param $migrations
-   * @param $alias
+   * @param null|string $alias
    * @return bool
    */
   public function processMigrations($command, $migrations, $alias) {
@@ -210,8 +207,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
       if ($execute) {
         $this->setMessage(t('Executed @command for "@name" migration.', $replace));
         $result = true;
-      }
-      else {
+      } else {
         $this->setError(t('Migration "@name" failed to execute @command', $replace));
         $result = false;
       }
@@ -226,8 +222,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     if (batch_get()) {
       if ($alias !== null && function_exists('drush_backend_batch_process')) {
         drush_backend_batch_process();
-      }
-      else {
+      } else {
         batch_process();
       }
     }
@@ -266,8 +261,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
       if ($this->moduleInstaller->install([$scenario])) {
         $this->setMessage(t('Installed @name scenario module.', ['@name' => $scenario]));
       }
-    }
-    else {
+    } else {
       $this->setError( t('The scenario @scenario is already enabled.', ['@scenario' => $scenario]));
       return;
     }
@@ -285,8 +279,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     // Rebuild cache after enabling scenario.
     if ($alias !== null && function_exists('drush_invoke_process')) {
       drush_invoke_process($alias, 'cache-rebuild');
-    }
-    else {
+    } else {
       drupal_flush_all_caches();
     }
   }
