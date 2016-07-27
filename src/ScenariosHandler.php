@@ -115,6 +115,19 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
+   * Necessary cache rebuilding.
+   *
+   * @param $alias
+   */
+  public function cacheRebuild($alias) {
+    if ($alias !== null && function_exists('drush_invoke_process')) {
+      drush_invoke_process($alias, 'cache-rebuild');
+    } else {
+      drupal_flush_all_caches();
+    }
+  }
+
+  /**
    * Retrieve alias context for Drush.
    *
    * @return null|string
@@ -165,6 +178,23 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
+   * Batch processing.
+   *
+   * @param $alias
+   */
+  public function processBatch($alias) {
+    if (batch_get()) {
+      if ($alias !== null && function_exists('drush_backend_batch_process')) {
+        drush_backend_batch_process();
+      } else {
+        batch_process();
+      }
+    }
+  }
+
+  /**
+   * Migration processing.
+   *
    * @param string $command
    * @param $migrations
    * @param null|string $alias
@@ -216,19 +246,27 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * @param $alias
+   * Scenario theme installation.
+   *
+   * @param $scenario
    */
-  public function processBatch($alias) {
-    if (batch_get()) {
-      if ($alias !== null && function_exists('drush_backend_batch_process')) {
-        drush_backend_batch_process();
-      } else {
-        batch_process();
+  public function themeInstall($scenario) {
+    // Get the scenario module info.
+    $info = $this->getScenarioInfo($scenario);
+    // Install the theme declared by the scenario.
+    if (!empty($info['scenarios_theme']) && !$this->themeHandler->themeExists($info['scenarios_theme'])) {
+      if ($this->themeHandler->install([$info['scenarios_theme']])) {
+        $this->setMessage(t('Installed @scenario scenario theme @theme.', [
+          '@scenario' => $scenario,
+          '@theme' => $info['scenarios_theme']
+        ]));
       }
     }
   }
 
   /**
+   * Enable Scenario.
+   *
    * @param string $scenario
    */
   public function scenarioEnable($scenario) {
@@ -237,25 +275,12 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
-    // Get the Drush alias if necessary or return null.
-    $alias = $this->getAlias();
-
     // Check if scenario is already enabled then install it.
     if (!$this->moduleHandler->moduleExists($scenario)) {
 
-      // Get the scenario module info.
-      $info = $this->getScenarioInfo($scenario);
-
       // If the scenario specifies a theme, enable it before installing the
       // scenario itself.
-      if (!empty($info['scenarios_theme']) && !$this->themeHandler->themeExists($info['scenarios_theme'])) {
-        if ($this->themeHandler->install([$info['scenarios_theme']])) {
-          $this->setMessage(t('Installed @scenario scenario theme @theme.', [
-            '@scenario' => $scenario,
-            '@theme' => $info['scenarios_theme']
-          ]));
-        }
-      }
+      $this->themeInstall($scenario);
 
       // Install the scenario module.
       if ($this->moduleInstaller->install([$scenario])) {
@@ -266,25 +291,22 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
-    // Load the Migration Manager.
-    $migration_manager = \Drupal::service('plugin.manager.migration');
-    $migration_manager->clearCachedDefinitions();
-
     // Retrieve the migrations for the given scenario.
     $migrations = scenarios_scenario_migrations($scenario);
+
+    // Get the Drush alias if necessary or return null.
+    $alias = $this->getAlias();
 
     // Process the migrations.
     $this->processMigrations('import', $migrations, $alias);
 
     // Rebuild cache after enabling scenario.
-    if ($alias !== null && function_exists('drush_invoke_process')) {
-      drush_invoke_process($alias, 'cache-rebuild');
-    } else {
-      drupal_flush_all_caches();
-    }
+    $this->cacheRebuild($alias);
   }
 
   /**
+   * Uninstall Scenario.
+   *
    * @param string $scenario
    */
   public function scenarioUninstall($scenario) {
@@ -293,13 +315,10 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
-    // Check if scenario is already enabled then install it.
+    // Check if scenario is enabled before uninstalling.
     if (!$this->moduleHandler->moduleExists($scenario)) {
       $this->setError(t('The @name scenario module is not enabled.', ['@name' => $scenario]));
     }
-
-    // Get the Drush alias if necessary or return null.
-    $alias = $this->getAlias();
 
     // Retrieve the migrations for the given scenario.
     $migrations = scenarios_scenario_migrations($scenario);
@@ -307,16 +326,21 @@ class ScenariosHandler implements ContainerInjectionInterface {
     // Reverse the order of the migrations.
     $migrations = array_reverse($migrations);
 
+    // Get the Drush alias if necessary or return null.
+    $alias = $this->getAlias();
+
     // Process the migrations.
     $this->processMigrations('rollback', $migrations, $alias);
 
-    // Uninstall the scenario.
+    // Uninstall the scenario module.
     if ($this->moduleInstaller->uninstall([$scenario])) {
       $this->setMessage(t('Uninstalled @name scenario module.', ['@name' => $scenario]));
     }
   }
 
   /**
+   * Reset Scenario.
+   *
    * @param string $scenario
    */
   public function scenarioReset($scenario) {
