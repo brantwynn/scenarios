@@ -222,7 +222,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
   /**
    * @param $alias
    */
-  function processBatch($alias) {
+  public function processBatch($alias) {
     if (batch_get()) {
       if ($alias !== null && function_exists('drush_backend_batch_process')) {
         drush_backend_batch_process();
