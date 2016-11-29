@@ -44,8 +44,13 @@ function scenarios_drush_command() {
     'arguments' => array(
       'scenario' => 'The name of the module that defines the scenario.',
     ),
+    'options' => array(
+      'skip' => 'Skip aspects of the reset allowing migrations or the module to persist as-is.',
+    ),
     'examples' => array(
-      'res dfs_tec' => 'Reset a scenario rolling back content and re-importing.',
+      'res dfs_tec' => 'Rolls back content then uninstalls and re-enables scenario for a clean reset.',
+      'res dfs_tec --skip=modules' => 'Resets content by rolling back and importing scenario migrations only.',
+      'res dfs_tec --skip=migrations' => 'Uninstalls and re-enables the scenario module, skipping migration rollback and import.',
     ),
     'drupal dependencies' => array('migrate_tools'),
     'aliases' => array('res'),
@@ -72,6 +77,7 @@ function drush_scenarios_uninstall_scenario($scenario) {
  * @param string $scenario
  */
 function drush_scenarios_reset_scenario($scenario) {
-  \Drupal::service(scenarios_handler)->scenarioReset($scenario);
+  $skip = drush_get_option('skip', null);
+  \Drupal::service(scenarios_handler)->scenarioReset($scenario, $skip);
 }
 

@@ -269,21 +269,19 @@ class ScenariosHandler implements ContainerInjectionInterface {
    *
    * @param string $scenario
    */
-  public function scenarioEnable($scenario) {
+  public function scenarioEnable($scenario, $skip = null) {
     if (!$scenario) {
       $this->setError(t('You must specify a scenario machine name, e.g. dfs_tec.'));
       return;
     }
 
     // Check if scenario is already enabled then install it.
-    if (!$this->moduleHandler->moduleExists($scenario)) {
-
+    if (!$this->moduleHandler->moduleExists($scenario) || $skip == 'modules') {
       // If the scenario specifies a theme, enable it before installing the
       // scenario itself.
       $this->themeInstall($scenario);
-
       // Install the scenario module.
-      if ($this->moduleInstaller->install([$scenario])) {
+      if ($skip != 'modules' && $this->moduleInstaller->install([$scenario])) {
         $this->setMessage(t('Installed @name scenario module.', ['@name' => $scenario]));
       }
     } else {
@@ -291,14 +289,15 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
-    // Retrieve the migrations for the given scenario.
-    $migrations = scenarios_scenario_migrations($scenario);
-
     // Get the Drush alias if necessary or return null.
     $alias = $this->getAlias();
 
-    // Process the migrations.
-    $this->processMigrations('import', $migrations, $alias);
+    if ($skip != 'migrations') {
+      // Retrieve the migrations for the given scenario.
+      $migrations = scenarios_scenario_migrations($scenario);
+      // Process the migrations.
+      $this->processMigrations('import', $migrations, $alias);
+    }
 
     // Rebuild cache after enabling scenario.
     $this->cacheRebuild($alias);
@@ -309,7 +308,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
    *
    * @param string $scenario
    */
-  public function scenarioUninstall($scenario) {
+  public function scenarioUninstall($scenario, $skip = null) {
     if (!$scenario) {
       $this->setError(t('You must specify a scenario machine name, e.g. dfs_tec.'));
       return;
@@ -321,20 +320,20 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
-    // Retrieve the migrations for the given scenario.
-    $migrations = scenarios_scenario_migrations($scenario);
-
-    // Reverse the order of the migrations.
-    $migrations = array_reverse($migrations);
-
     // Get the Drush alias if necessary or return null.
     $alias = $this->getAlias();
 
-    // Process the migrations.
-    $this->processMigrations('rollback', $migrations, $alias);
+    if ($skip != 'migrations') {
+      // Retrieve the migrations for the given scenario.
+      $migrations = scenarios_scenario_migrations($scenario);
+      // Reverse the order of the migrations.
+      $migrations = array_reverse($migrations);
+      // Process the migrations.
+      $this->processMigrations('rollback', $migrations, $alias);
+    }
 
     // Uninstall the scenario module.
-    if ($this->moduleInstaller->uninstall([$scenario])) {
+    if ($skip != 'modules' && $this->moduleInstaller->uninstall([$scenario])) {
       $this->setMessage(t('Uninstalled @name scenario module.', ['@name' => $scenario]));
     }
   }
@@ -344,12 +343,15 @@ class ScenariosHandler implements ContainerInjectionInterface {
    *
    * @param string $scenario
    */
-  public function scenarioReset($scenario) {
+  public function scenarioReset($scenario, $skip = null) {
     $this->setMessage(t('Initiated reset of @name scenario module.', ['@name' => $scenario]), 'warning');
+    if ($skip == 'migrations' || $skip == 'modules') {
+      $this->setMessage(t('Scenarios will skip reset for @skipped.', ['@skipped' => $skip]), 'warning');
+    }
     // Uninstall the scenario.
-    $this->scenarioUninstall($scenario);
+    $this->scenarioUninstall($scenario, $skip);
     // Enable the scenario.
-    $this->scenarioEnable($scenario);
+    $this->scenarioEnable($scenario, $skip);
   }
 
 }
