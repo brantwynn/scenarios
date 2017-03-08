@@ -246,7 +246,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
       switch ($command) {
         case "import":
           if ($execute = $executable->import()) {
-            \Drupal::moduleHandler()->invokeAll('scenarios_migration_finished', [$migration]);
+            $this->moduleHandler->invokeAll('scenarios_migration_finished', [$migration]);
           }
           break;
         case "rollback":
