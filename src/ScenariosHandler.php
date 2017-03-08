@@ -161,13 +161,22 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * @param $scenario
+   * Retrieves scenario information.
    *
-   * @return string
+   * @param string $scenario
+   *   The name of the scenario to retrieve information for.
+   *
+   * @return string|bool
+   *   An associative array of scenario information or FALSE if the scenario
+   *   does not exist.
    */
   public function getScenarioInfo($scenario) {
-    $filename = drupal_get_filename('module', $scenario);
-    return $this->infoParser->parse($filename);
+    if ($filename = drupal_get_filename('module', $scenario)) {
+      return $this->infoParser->parse($filename);
+    }
+    else {
+      return FALSE;
+    }
   }
 
   /**
