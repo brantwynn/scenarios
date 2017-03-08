@@ -6,17 +6,29 @@
  */
 
 /**
- * Function to return scenario migrations.
+ * Gets scenario migration information.
+ *
  * @param $scenario
+ *   (optional) The name of the scenario to retrieve migrations for.
+ *
  * @return array
+ *   An associative array of migration information.
+ *
+ * @see hook_scenario_import()
+ * @see hook_scenario_import_alter()
  */
-function scenarios_scenario_migrations($scenario) {
-  // Invoke hook_scenario_import.
-  $migrations = Drupal::moduleHandler()->invokeAll('scenario_import');
-  // Invoke hook_scenario_import.
-  Drupal::moduleHandler()->alter('scenario_import', $migrations);
-  $migrations = $migrations[$scenario];
-  return $migrations;
+function scenarios_scenario_migrations($scenario = NULL) {
+  $info = &drupal_static(__FUNCTION__);
+  if (!isset($info)) {
+    $info = \Drupal::moduleHandler()->invokeAll('scenario_import');
+    \Drupal::moduleHandler()->alter('scenario_import', $info);
+  }
+  if (isset($scenario)) {
+    return isset($info[$scenario]) ? $info[$scenario] : [];
+  }
+  else {
+    return $info;
+  }
 }
 
 /**
