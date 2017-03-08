@@ -374,19 +374,29 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * Reset Scenario.
+   * Resets a scenario.
    *
    * @param string $scenario
+   *   The name of the scenario to reset.
+   * @param string $skip
+   *   (optional) The name of a scenario element to skip when resetting a
+   *   scenario, either 'modules' or 'migrations'.
    */
   public function scenarioReset($scenario, $skip = NULL) {
-    $this->setMessage(t('Initiated reset of @name scenario module.', ['@name' => $scenario]), 'warning');
-    if ($skip == 'migrations' || $skip == 'modules') {
-      $this->setMessage(t('Scenarios will skip reset for @skipped.', ['@skipped' => $skip]), 'warning');
+    // Get the scenario module info.
+    if ($info = $this->getScenarioInfo($scenario)) {
+      $this->setMessage(t('Initiated reset of @scenario scenario.', ['@scenario' => $scenario]), 'warning');
+      if ($skip == 'migrations' || $skip == 'modules') {
+        $this->setMessage(t('Scenarios will skip reset for @skipped.', ['@skipped' => $skip]), 'warning');
+      }
+      // Uninstall the scenario.
+      $this->scenarioUninstall($scenario, $skip);
+      // Enable the scenario.
+      $this->scenarioEnable($scenario, $skip);
     }
-    // Uninstall the scenario.
-    $this->scenarioUninstall($scenario, $skip);
-    // Enable the scenario.
-    $this->scenarioEnable($scenario, $skip);
+
+    $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
+    return;
   }
 
 }
