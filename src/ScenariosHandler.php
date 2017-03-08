@@ -334,38 +334,43 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * Uninstall Scenario.
+   * Uninstalls a scenario.
    *
    * @param string $scenario
+   *   The name of the scenario to uninstall.
+   * @param string $skip
+   *   (optional) The name of a scenario element to skip when uninstalling a
+   *   scenario, either 'modules' or 'migrations'.
    */
   public function scenarioUninstall($scenario, $skip = NULL) {
-    if (!$scenario) {
-      $this->setError(t('You must specify a scenario machine name, e.g. dfs_tec.'));
-      return;
+    // Get the scenario module info.
+    if ($info = $this->getScenarioInfo($scenario)) {
+      // Check if scenario is enabled before uninstalling.
+      if (!$this->moduleHandler->moduleExists($scenario)) {
+        $this->setError(t('The @scenario scenario module is not enabled.', ['@scenario' => $scenario]));
+        return;
+      }
+
+      // Get the Drush alias.
+      $alias = $this->getAlias();
+
+      if ($skip != 'migrations') {
+        // Retrieve the migrations for the given scenario.
+        $migrations = scenarios_scenario_migrations($scenario);
+        // Reverse the order of the migrations.
+        $migrations = array_reverse($migrations);
+        // Process the migrations.
+        $this->processMigrations('rollback', $migrations, $alias);
+      }
+
+      // Uninstall the scenario module.
+      if ($skip != 'modules' && $this->moduleInstaller->uninstall([$scenario])) {
+        $this->setMessage(t('Uninstalled the @scenario scenario.', ['@scenario' => $scenario]));
+      }
     }
 
-    // Check if scenario is enabled before uninstalling.
-    if (!$this->moduleHandler->moduleExists($scenario)) {
-      $this->setError(t('The @name scenario module is not enabled.', ['@name' => $scenario]));
-      return;
-    }
-
-    // Get the Drush alias if necessary or return NULL.
-    $alias = $this->getAlias();
-
-    if ($skip != 'migrations') {
-      // Retrieve the migrations for the given scenario.
-      $migrations = scenarios_scenario_migrations($scenario);
-      // Reverse the order of the migrations.
-      $migrations = array_reverse($migrations);
-      // Process the migrations.
-      $this->processMigrations('rollback', $migrations, $alias);
-    }
-
-    // Uninstall the scenario module.
-    if ($skip != 'modules' && $this->moduleInstaller->uninstall([$scenario])) {
-      $this->setMessage(t('Uninstalled @name scenario module.', ['@name' => $scenario]));
-    }
+    $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
+    return;
   }
 
   /**
