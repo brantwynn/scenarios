@@ -32,8 +32,7 @@ function scenarios_scenario_migrations($scenario = NULL) {
 }
 
 /**
- * Implements hook_theme.
- * @return array
+ * Implements hook_theme().
  */
 function scenarios_theme() {
   return [
@@ -45,4 +44,3 @@ function scenarios_theme() {
     ],
   ];
 }
-
