@@ -289,6 +289,24 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
+   * Installs a scenario's admin theme.
+   *
+   * @param string $scenario
+   *   The name of the scenario to install the theme for.
+   */
+  public function themeAdminInstall($scenario) {
+    // Get the scenario module info.
+    if ($info = $this->getScenarioInfo($scenario)) {
+      // Install the admin theme declared by the scenario.
+      if (!empty($info['scenarios_admin_theme']) && !$this->themeHandler->themeExists($info['scenarios_admin_theme'])) {
+        if ($this->themeHandler->install([$info['scenarios_admin_theme']])) {
+          $this->setMessage(t('Installed @scenario scenario admin theme @theme.', ['@scenario' => $scenario, '@theme' => $info['scenarios_admin_theme']]));
+        }
+      }
+    }
+  }
+
+  /**
    * Enables a scenario.
    *
    * @param string $scenario
@@ -305,6 +323,9 @@ class ScenariosHandler implements ContainerInjectionInterface {
         // If the scenario specifies a theme, enable it before installing the
         // scenario itself.
         $this->themeInstall($scenario);
+        // If the scenario specifies an administration theme, enable it before
+        // installing the scenario itself.
+        $this->themeAdminInstall($scenario);
         // Install the scenario module.
         if ($skip != 'modules' && $this->moduleInstaller->install([$scenario])) {
           $this->setMessage(t('Installed the @scenario scenario.', ['@scenario' => $scenario]));
@@ -328,9 +349,9 @@ class ScenariosHandler implements ContainerInjectionInterface {
       // Rebuild cache after enabling scenario.
       $this->cacheRebuild($alias);
     }
-
-    $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
-    return;
+    else {
+      $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
+    }
   }
 
   /**
@@ -368,9 +389,9 @@ class ScenariosHandler implements ContainerInjectionInterface {
         $this->setMessage(t('Uninstalled the @scenario scenario.', ['@scenario' => $scenario]));
       }
     }
-
-    $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
-    return;
+    else {
+      $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
+    }
   }
 
   /**
@@ -394,9 +415,9 @@ class ScenariosHandler implements ContainerInjectionInterface {
       // Enable the scenario.
       $this->scenarioEnable($scenario, $skip);
     }
-
-    $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
-    return;
+    else {
+      $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
+    }
   }
 
 }
