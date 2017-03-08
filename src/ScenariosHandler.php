@@ -96,7 +96,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
     if (PHP_SAPI === 'cli' && function_exists('drush_log')) {
       $type = ($type == 'status' ? 'ok' : $type);
       drush_log($message, $type);
-    } else {
+    }
+    else {
       drupal_set_message($message, $type, $repeat);
     }
   }
@@ -109,7 +110,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
   public function setError($message) {
     if (PHP_SAPI === 'cli' && function_exists('drush_set_error')) {
       drush_set_error('ERROR', $message);
-    } else {
+    }
+    else {
       drupal_set_message($message, 'error');
     }
   }
@@ -120,9 +122,10 @@ class ScenariosHandler implements ContainerInjectionInterface {
    * @param $alias
    */
   public function cacheRebuild($alias) {
-    if ($alias !== null && function_exists('drush_invoke_process')) {
+    if ($alias !== NULL && function_exists('drush_invoke_process')) {
       drush_invoke_process($alias, 'cache-rebuild');
-    } else {
+    }
+    else {
       drupal_flush_all_caches();
     }
   }
@@ -133,7 +136,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
    * @return null|string
    */
   public function getAlias() {
-    $alias = null;
+    $alias = NULL;
     if (PHP_SAPI === 'cli' && function_exists('drush_get_context')) {
       $alias_context = drush_get_context('alias');
       $alias = !empty($alias_context) ? $alias_context : '@self';
@@ -145,18 +148,21 @@ class ScenariosHandler implements ContainerInjectionInterface {
    * Set up the logger.
    *
    * @param $alias
+   *
    * @return \Drupal\migrate\MigrateMessage|\Drupal\migrate_tools\DrushLogMigrateMessage
    */
   public function getLog($alias) {
-    if ($alias != null && function_exists('drush_log')) {
+    if ($alias != NULL && function_exists('drush_log')) {
       return new DrushLogMigrateMessage();
-    } else {
+    }
+    else {
       return new MigrateMessage();
     }
   }
 
   /**
    * @param $scenario
+   *
    * @return string
    */
   public function getScenarioInfo($scenario) {
@@ -166,7 +172,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
 
   /**
    * @param $scenario
-   * @return string | null
+   *
+   * @return string|null
    */
   public function getScreenshot($scenario) {
     $info = $this->getScenarioInfo($scenario);
@@ -174,7 +181,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
     if (!empty($info['scenarios_theme']) && !empty($themes[$info['scenarios_theme']]) && file_exists($themes[$info['scenarios_theme']]->info['screenshot'])) {
       return $themes[$info['scenarios_theme']]->info['screenshot'];
     }
-    return null;
+    return NULL;
   }
 
   /**
@@ -184,9 +191,10 @@ class ScenariosHandler implements ContainerInjectionInterface {
    */
   public function processBatch($alias) {
     if (batch_get()) {
-      if ($alias !== null && function_exists('drush_backend_batch_process')) {
+      if ($alias !== NULL && function_exists('drush_backend_batch_process')) {
         drush_backend_batch_process();
-      } else {
+      }
+      else {
         batch_process();
       }
     }
@@ -198,6 +206,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
    * @param string $command
    * @param $migrations
    * @param null|string $alias
+   *
    * @return bool
    */
   public function processMigrations($command, $migrations, $alias) {
@@ -237,7 +246,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
       if ($execute) {
         $this->setMessage(t('Executed @command for "@name" migration.', $replace));
         $result = true;
-      } else {
+      }
+      else {
         $this->setError(t('Migration "@name" failed to execute @command', $replace));
         $result = false;
       }
@@ -269,7 +279,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
    *
    * @param string $scenario
    */
-  public function scenarioEnable($scenario, $skip = null) {
+  public function scenarioEnable($scenario, $skip = NULL) {
     if (!$scenario) {
       $this->setError(t('You must specify a scenario machine name, e.g. dfs_tec.'));
       return;
@@ -284,12 +294,13 @@ class ScenariosHandler implements ContainerInjectionInterface {
       if ($skip != 'modules' && $this->moduleInstaller->install([$scenario])) {
         $this->setMessage(t('Installed @name scenario module.', ['@name' => $scenario]));
       }
-    } else {
+    }
+    else {
       $this->setError( t('The scenario @scenario is already enabled.', ['@scenario' => $scenario]));
       return;
     }
 
-    // Get the Drush alias if necessary or return null.
+    // Get the Drush alias if necessary or return NULL.
     $alias = $this->getAlias();
 
     if ($skip != 'migrations') {
@@ -308,7 +319,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
    *
    * @param string $scenario
    */
-  public function scenarioUninstall($scenario, $skip = null) {
+  public function scenarioUninstall($scenario, $skip = NULL) {
     if (!$scenario) {
       $this->setError(t('You must specify a scenario machine name, e.g. dfs_tec.'));
       return;
@@ -320,7 +331,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
       return;
     }
 
-    // Get the Drush alias if necessary or return null.
+    // Get the Drush alias if necessary or return NULL.
     $alias = $this->getAlias();
 
     if ($skip != 'migrations') {
@@ -343,7 +354,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
    *
    * @param string $scenario
    */
-  public function scenarioReset($scenario, $skip = null) {
+  public function scenarioReset($scenario, $skip = NULL) {
     $this->setMessage(t('Initiated reset of @name scenario module.', ['@name' => $scenario]), 'warning');
     if ($skip == 'migrations' || $skip == 'modules') {
       $this->setMessage(t('Scenarios will skip reset for @skipped.', ['@skipped' => $skip]), 'warning');
