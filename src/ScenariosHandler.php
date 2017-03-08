@@ -271,7 +271,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * Scenario theme installation.
+   * Installs a scenario's theme.
    *
    * @param string $scenario
    *   The name of the scenario to install the theme for.
@@ -289,43 +289,48 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * Enable Scenario.
+   * Enables a scenario.
    *
    * @param string $scenario
+   *   The name of the scenario to enable.
+   * @param string $skip
+   *   (optional) The name of a scenario element to skip when enabling a
+   *   scenario, either 'modules' or 'migrations'.
    */
   public function scenarioEnable($scenario, $skip = NULL) {
-    if (!$scenario) {
-      $this->setError(t('You must specify a scenario machine name, e.g. dfs_tec.'));
-      return;
-    }
-
-    // Check if scenario is already enabled then install it.
-    if (!$this->moduleHandler->moduleExists($scenario) || $skip == 'modules') {
-      // If the scenario specifies a theme, enable it before installing the
-      // scenario itself.
-      $this->themeInstall($scenario);
-      // Install the scenario module.
-      if ($skip != 'modules' && $this->moduleInstaller->install([$scenario])) {
-        $this->setMessage(t('Installed @name scenario module.', ['@name' => $scenario]));
+    // Get the scenario module info.
+    if ($info = $this->getScenarioInfo($scenario)) {
+      // Check if scenario is already enabled then install it.
+      if (!$this->moduleHandler->moduleExists($scenario) || $skip == 'modules') {
+        // If the scenario specifies a theme, enable it before installing the
+        // scenario itself.
+        $this->themeInstall($scenario);
+        // Install the scenario module.
+        if ($skip != 'modules' && $this->moduleInstaller->install([$scenario])) {
+          $this->setMessage(t('Installed the @scenario scenario.', ['@scenario' => $scenario]));
+        }
       }
-    }
-    else {
-      $this->setError( t('The scenario @scenario is already enabled.', ['@scenario' => $scenario]));
-      return;
+      else {
+        $this->setError(t('The scenario @scenario is already enabled.', ['@scenario' => $scenario]));
+        return;
+      }
+
+      // Get the Drush alias.
+      $alias = $this->getAlias();
+
+      if ($skip != 'migrations') {
+        // Retrieve the migrations for the given scenario.
+        $migrations = scenarios_scenario_migrations($scenario);
+        // Process the migrations.
+        $this->processMigrations('import', $migrations, $alias);
+      }
+
+      // Rebuild cache after enabling scenario.
+      $this->cacheRebuild($alias);
     }
 
-    // Get the Drush alias if necessary or return NULL.
-    $alias = $this->getAlias();
-
-    if ($skip != 'migrations') {
-      // Retrieve the migrations for the given scenario.
-      $migrations = scenarios_scenario_migrations($scenario);
-      // Process the migrations.
-      $this->processMigrations('import', $migrations, $alias);
-    }
-
-    // Rebuild cache after enabling scenario.
-    $this->cacheRebuild($alias);
+    $this->setError(t('The scenario @scenario does not exist.', ['@scenario' => $scenario]));
+    return;
   }
 
   /**
