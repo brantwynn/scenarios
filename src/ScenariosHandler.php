@@ -180,17 +180,23 @@ class ScenariosHandler implements ContainerInjectionInterface {
   }
 
   /**
-   * @param $scenario
+   * Retrieves a screenshot of the theme associated with a scenario.
    *
-   * @return string|null
+   * @param string $scenario
+   *   The name of the scenario to retrieve a screenshot for.
+   *
+   * @return string|bool
+   *   The path to a screenshot of the scenario theme or FALSE if the scenario,
+   *   the scenario theme or a screenshot of the scenario theme does not exist.
    */
   public function getScreenshot($scenario) {
-    $info = $this->getScenarioInfo($scenario);
-    $themes = $this->themeHandler->rebuildThemeData();
-    if (!empty($info['scenarios_theme']) && !empty($themes[$info['scenarios_theme']]) && file_exists($themes[$info['scenarios_theme']]->info['screenshot'])) {
-      return $themes[$info['scenarios_theme']]->info['screenshot'];
+    if ($info = $this->getScenarioInfo($scenario)) {
+      $themes = $this->themeHandler->rebuildThemeData();
+      if (!empty($info['scenarios_theme']) && !empty($themes[$info['scenarios_theme']]) && file_exists($themes[$info['scenarios_theme']]->info['screenshot'])) {
+        return $themes[$info['scenarios_theme']]->info['screenshot'];
+      }
     }
-    return NULL;
+    return FALSE;
   }
 
   /**
