@@ -225,9 +225,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
    * @return bool
    */
   public function processMigrations($command, $migrations, $alias) {
-    // Load the Migration Manager.
-    $migration_manager = \Drupal::service('plugin.manager.migration');
-    $migration_manager->clearCachedDefinitions();
+    // Clear any cached plugin definitions.
+    $this->migrationPluginManager->clearCachedDefinitions();
 
     // Return the correct log for the Migrate Executable.
     $log = $this->getLog($alias);
@@ -240,7 +239,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
 
     // Run the migrations in the provided order.
     foreach ($migrations as $migration) {
-      $migration = $migration_manager->createInstance($migration);
+      $migration = $this->migrationPluginManager->createInstance($migration);
       $executable = new MigrateExecutable($migration, $log);
       $name = $migration->label();
       switch ($command) {
