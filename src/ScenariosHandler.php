@@ -273,18 +273,17 @@ class ScenariosHandler implements ContainerInjectionInterface {
   /**
    * Scenario theme installation.
    *
-   * @param $scenario
+   * @param string $scenario
+   *   The name of the scenario to install the theme for.
    */
   public function themeInstall($scenario) {
     // Get the scenario module info.
-    $info = $this->getScenarioInfo($scenario);
-    // Install the theme declared by the scenario.
-    if (!empty($info['scenarios_theme']) && !$this->themeHandler->themeExists($info['scenarios_theme'])) {
-      if ($this->themeHandler->install([$info['scenarios_theme']])) {
-        $this->setMessage(t('Installed @scenario scenario theme @theme.', [
-          '@scenario' => $scenario,
-          '@theme' => $info['scenarios_theme']
-        ]));
+    if ($info = $this->getScenarioInfo($scenario)) {
+      // Install the theme declared by the scenario.
+      if (!empty($info['scenarios_theme']) && !$this->themeHandler->themeExists($info['scenarios_theme'])) {
+        if ($this->themeHandler->install([$info['scenarios_theme']])) {
+          $this->setMessage(t('Installed @scenario scenario theme @theme.', ['@scenario' => $scenario, '@theme' => $info['scenarios_theme']]));
+        }
       }
     }
   }
