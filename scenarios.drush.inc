@@ -60,24 +60,32 @@ function scenarios_drush_command() {
 }
 
 /**
+ * Enables a scenario.
+ *
  * @param string $scenario
+ *   The name of the scenario to enable.
  */
 function drush_scenarios_enable_scenario($scenario) {
-  \Drupal::service(scenarios_handler)->scenarioEnable($scenario);
+  \Drupal::service('scenarios_handler')->scenarioEnable($scenario);
 }
 
 /**
+ * Uninstalls a scenario.
+ *
  * @param string $scenario
+ *   The name of the scenario to uninstall.
  */
 function drush_scenarios_uninstall_scenario($scenario) {
-  \Drupal::service(scenarios_handler)->scenarioUninstall($scenario);
+  \Drupal::service('scenarios_handler')->scenarioUninstall($scenario);
 }
 
 /**
+ * Resets a scenario.
+ *
  * @param string $scenario
+ *   The name of the scenario to reset.
  */
 function drush_scenarios_reset_scenario($scenario) {
   $skip = drush_get_option('skip', null);
-  \Drupal::service(scenarios_handler)->scenarioReset($scenario, $skip);
+  \Drupal::service('scenarios_handler')->scenarioReset($scenario, $skip);
 }
-
