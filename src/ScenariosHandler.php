@@ -245,7 +245,9 @@ class ScenariosHandler implements ContainerInjectionInterface {
       switch ($command) {
         case "import":
           if ($execute = $executable->import()) {
-            $this->moduleHandler->invokeAll('scenarios_migration_finished', [$migration]);
+            // Invoke the 'scenarios_migration_finished' hook from the global
+            // container in case a scenario dependency implements that hook.
+            \Drupal::moduleHandler()->invokeAll('scenarios_migration_finished', [$migration]);
           }
           break;
         case "rollback":
