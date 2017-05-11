@@ -1,5 +1,5 @@
 services:
   scenarios_handler:
     class: Drupal\scenarios\ScenariosHandler
-    arguments: ["@module_handler", "@module_installer", "@info_parser", "@theme_handler", "@plugin.manager.migration"]
+    arguments: ["@module_handler", "@module_installer", "@info_parser", "@theme_handler", "@plugin.manager.migration", "@config.factory"]
 

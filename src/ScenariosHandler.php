@@ -11,6 +11,7 @@ use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\Plugin\MigrationPluginManager;
 use Drupal\migrate\MigrateMessage;
 use Drupal\migrate_tools\DrushLogMigrateMessage;
+use Drupal\Core\Config\ConfigFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -56,6 +57,13 @@ class ScenariosHandler implements ContainerInjectionInterface {
   protected $migrationPluginManager;
 
   /**
+   * Drupal\Core\Config\ConfigFactory definition
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
    * Constructor.
    *
    * @var \Drupal\Core\Extension\ModuleHandler
@@ -63,13 +71,15 @@ class ScenariosHandler implements ContainerInjectionInterface {
    * @var \Drupal\Core\Extension\InfoParser
    * @var \Drupal\Core\Extension\ThemeHandler
    * @var \Drupal\migrate\Plugin\MigrationPluginManager
+   * @var \Drupal\Core\Config\ConfigFactory
    */
-  public function __construct(ModuleHandler $module_handler, ModuleInstaller $module_installer, InfoParser $info_parser, ThemeHandler $theme_handler, MigrationPluginManager $migration_plugin_manager) {
+  public function __construct(ModuleHandler $module_handler, ModuleInstaller $module_installer, InfoParser $info_parser, ThemeHandler $theme_handler, MigrationPluginManager $migration_plugin_manager, ConfigFactory $config_factory) {
     $this->moduleHandler = $module_handler;
     $this->moduleInstaller = $module_installer;
     $this->infoParser = $info_parser;
     $this->themeHandler = $theme_handler;
     $this->migrationPluginManager = $migration_plugin_manager;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -81,7 +91,8 @@ class ScenariosHandler implements ContainerInjectionInterface {
       $container->get('module_installer'),
       $container->get('info_parser'),
       $container->get('theme_handler'),
-      $container->get('plugin.manager.migration')
+      $container->get('plugin.manager.migration'),
+      $container->get('config.factory')
     );
   }
 
@@ -330,6 +341,7 @@ class ScenariosHandler implements ContainerInjectionInterface {
         // Install the scenario module.
         if ($skip != 'modules' && $this->moduleInstaller->install([$scenario])) {
           $this->setMessage(t('Installed the @scenario scenario.', ['@scenario' => $scenario]));
+          $this->configFactory->getEditable('scenarios.settings')->set('scenarios.enabled', $scenario)->save();
         }
       }
       else {

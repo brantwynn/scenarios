@@ -28,4 +28,7 @@
         </div>
     {% endfor %}
     </div>
+    {% if scenario_enabled != null %}
+        <div class="scenario-enabled"><h3>Currently Enabled: {{ scenario_enabled }}</h3></div>
+    {% endif %}
 </div>

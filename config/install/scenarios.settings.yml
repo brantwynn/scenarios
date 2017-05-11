@@ -1,2 +1,3 @@
 scenarios:
   page_title: 'Scenarios'
+  enabled: null

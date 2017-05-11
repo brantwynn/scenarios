@@ -7,6 +7,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Extension\InfoParser;
 use Drupal\Core\Link;
+use Drupal\Core\Config\ConfigFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -38,12 +39,20 @@ class ScenariosPage extends ControllerBase {
   protected $scenariosHandler;
 
   /**
+   * Drupal\Core\Config\ConfigFactory definition
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(ModuleHandler $module_handler, InfoParser $info_parser, ScenariosHandler $scenarios_handler) {
+  public function __construct(ModuleHandler $module_handler, InfoParser $info_parser, ScenariosHandler $scenarios_handler, ConfigFactory $config_factory) {
     $this->moduleHandler = $module_handler;
     $this->infoParser = $info_parser;
     $this->scenariosHandler = $scenarios_handler;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -53,7 +62,8 @@ class ScenariosPage extends ControllerBase {
     return new static(
       $container->get('module_handler'),
       $container->get('info_parser'),
-      $container->get('scenarios_handler')
+      $container->get('scenarios_handler'),
+      $container->get('config.factory')
     );
   }
 
@@ -89,7 +99,7 @@ class ScenariosPage extends ControllerBase {
     if ($message != null) {
       drupal_set_message($message);
     }
-    $default_config = \Drupal::config('scenarios.settings');
+    $default_config = $this->configFactory->get('scenarios.settings');
     $scenarios = [];
     $installed = $this->moduleHandler->getModuleList();
     $modules = system_rebuild_module_data();
@@ -120,7 +130,8 @@ class ScenariosPage extends ControllerBase {
         ]
       ],
       '#page_title' => $default_config->get('scenarios.page_title'),
-      '#scenarios' => $scenarios
+      '#scenarios' => $scenarios,
+      '#scenario_enabled' => $default_config->get('scenarios.enabled')
     ];
   }
 

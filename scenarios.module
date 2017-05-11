@@ -39,7 +39,8 @@ function scenarios_theme() {
     'scenarios_page' => [
       'variables' => [
         'scenarios' => NULL,
-        'page_title' => 'Scenarios'
+        'page_title' => 'Scenarios',
+        'scenario_enabled' => NULL
       ],
     ],
   ];
